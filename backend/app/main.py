@@ -1,6 +1,9 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+import os
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from app.config import settings
 from app.database import init_db
 from app.routes.agent_routes import router as agent_router
@@ -53,8 +56,32 @@ app.include_router(audit_router)
 app.include_router(dashboard_router)
 app.include_router(benchmark_router)
 
-@app.get("/")
-def root():
+# Resolve public static directory for serving frontend bundle
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PUBLIC_DIR = os.path.join(BASE_DIR, "public")
+if not os.path.exists(PUBLIC_DIR):
+    PUBLIC_DIR = os.path.join(BASE_DIR, "frontend", "dist")
+
+ASSETS_DIR = os.path.join(PUBLIC_DIR, "assets")
+if os.path.exists(ASSETS_DIR):
+    app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
+
+@app.get("/favicon.svg")
+def serve_favicon():
+    fav = os.path.join(PUBLIC_DIR, "favicon.svg")
+    if os.path.exists(fav):
+        return FileResponse(fav, media_type="image/svg+xml")
+    raise HTTPException(status_code=404)
+
+@app.get("/icons.svg")
+def serve_icons():
+    ico = os.path.join(PUBLIC_DIR, "icons.svg")
+    if os.path.exists(ico):
+        return FileResponse(ico, media_type="image/svg+xml")
+    raise HTTPException(status_code=404)
+
+@app.get("/api")
+def api_info():
     return {
         "platform": settings.PROJECT_NAME,
         "tagline": "Your AI Agent's Firewall Against Manipulation",
@@ -66,6 +93,30 @@ def root():
 @app.get("/health")
 def health_check():
     return {"status": "HEALTHY", "gateway": "ACTIVE"}
+
+@app.get("/")
+def serve_root():
+    index_path = os.path.join(PUBLIC_DIR, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path, media_type="text/html")
+    return {
+        "platform": settings.PROJECT_NAME,
+        "tagline": "Your AI Agent's Firewall Against Manipulation",
+        "version": settings.VERSION,
+        "status": "OPERATIONAL"
+    }
+
+@app.get("/{full_path:path}")
+def serve_frontend_spa(full_path: str):
+    # If file exists in public dir, serve it directly
+    target_file = os.path.join(PUBLIC_DIR, full_path)
+    if os.path.exists(target_file) and os.path.isfile(target_file):
+        return FileResponse(target_file)
+    # Otherwise return index.html for React SPA client-side routing
+    index_path = os.path.join(PUBLIC_DIR, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path, media_type="text/html")
+    raise HTTPException(status_code=404, detail="Not Found")
 
 if __name__ == "__main__":
     import uvicorn
