@@ -1,6 +1,6 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
+  "buildCommand": "npm --prefix frontend install && npm --prefix frontend run build && node -e \"const fs=require('fs'); fs.cpSync('frontend/dist', 'public', {recursive: true});\"",
+  "outputDirectory": "public",
   "rewrites": [
     {
       "source": "/api/(.*)",
