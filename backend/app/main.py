@@ -34,7 +34,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include all API routes
+# Include all API routes (both with and without /api prefix for local and serverless compatibility)
 app.include_router(agent_router, prefix=settings.API_V1_STR)
 app.include_router(simulation_router, prefix=settings.API_V1_STR)
 app.include_router(gateway_router, prefix=settings.API_V1_STR)
@@ -43,6 +43,15 @@ app.include_router(threat_router, prefix=settings.API_V1_STR)
 app.include_router(audit_router, prefix=settings.API_V1_STR)
 app.include_router(dashboard_router, prefix=settings.API_V1_STR)
 app.include_router(benchmark_router, prefix=settings.API_V1_STR)
+
+app.include_router(agent_router)
+app.include_router(simulation_router)
+app.include_router(gateway_router)
+app.include_router(policy_router)
+app.include_router(threat_router)
+app.include_router(audit_router)
+app.include_router(dashboard_router)
+app.include_router(benchmark_router)
 
 @app.get("/")
 def root():
