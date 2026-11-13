@@ -1,0 +1,22 @@
+{
+  "name": "agentshield-ai",
+  "version": "1.0.0",
+  "description": "AgentShield AI - Your AI Agent's Firewall Against Manipulation",
+  "private": true,
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "test:backend": "cd backend && .\\venv\\Scripts\\python.exe -m pytest"
+  },
+  "keywords": [
+    "ai-agent-security",
+    "prompt-injection",
+    "firewall",
+    "gateway",
+    "rbac",
+    "cybersecurity"
+  ],
+  "author": "Priyanshu Kumar Sinha, Muskan Bharti, Vishesh",
+  "license": "Apache-2.0"
+}
