@@ -7,7 +7,8 @@ import {
   ThreatItem,
   AuditLogItem,
   BenchmarkMetrics,
-  ToolExecutionTrace
+  ToolExecutionTrace,
+  NovaSupportAnalyzeResponse
 } from '../types';
 
 const API_BASE = '/api';
@@ -164,5 +165,25 @@ export const api = {
 
   getBenchmarkExportUrl(): string {
     return `${API_BASE}/benchmark/export.json`;
+  },
+
+  // NovaSupport AI Dynamic Gemini Analysis
+  async analyzeCustomInput(payload: {
+    text: string;
+    session_id?: string;
+    user_id?: string;
+    user_role?: string;
+    protected_mode?: boolean;
+  }): Promise<NovaSupportAnalyzeResponse> {
+    const res = await fetch(`${API_BASE}/novasupport/analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(err.detail || 'Failed to analyze input with NovaSupport AI');
+    }
+    return res.json();
   }
 };

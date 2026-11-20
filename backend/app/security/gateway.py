@@ -1,6 +1,6 @@
 import time
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional, Tuple
 from app.database import get_db
 from app.models.schemas import SecurityDecision, ThreatCategory, ThreatSeverity, ToolExecutionTrace
@@ -39,7 +39,7 @@ def record_audit_log(
         explanation, execution_time_ms, protected_mode
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-        datetime.utcnow().isoformat(),
+        datetime.now(timezone.utc).isoformat(),
         request_id,
         session_id,
         user_id,
@@ -74,7 +74,7 @@ def record_threat_incident(
         decision, reason, user_id, user_role, payload_snippet
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-        datetime.utcnow().isoformat(),
+        datetime.now(timezone.utc).isoformat(),
         threat_category,
         severity,
         requested_action,

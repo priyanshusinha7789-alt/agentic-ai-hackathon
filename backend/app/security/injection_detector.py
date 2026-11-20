@@ -16,7 +16,7 @@ INJECTION_PATTERNS = [
      ThreatCategory.DIRECT_PROMPT_INJECTION, ThreatSeverity.CRITICAL, "Jailbreak bypass instruction signature."),
 
     # 2. System prompt leakage / extraction
-    (r"(?i)\b(?:reveal|print|repeat|output|show|echo|dump)\s+(?:your\s+)?(?:initial|original|secret|hidden|system)\s+(?:prompt|instructions|context|rules|guidelines)\b",
+    (r"(?i)\b(?:reveal|print|repeat|output|show|echo|dump|extract|leak)\s+(?:your\s+)?(?:initial\s+|original\s+|secret\s+|hidden\s+)?(?:system\s+)?(?:prompt|instructions|context|rules|guidelines)\b",
      ThreatCategory.DIRECT_PROMPT_INJECTION, ThreatSeverity.HIGH, "System prompt exfiltration attempt detected."),
 
     # 3. Delimiter & XML/Markdown boundary injection

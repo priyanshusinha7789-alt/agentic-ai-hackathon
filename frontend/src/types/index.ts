@@ -153,3 +153,34 @@ export interface BenchmarkMetrics {
     "Unprotected Baseline": string;
   }>;
 }
+
+export interface NovaSupportAnalysis {
+  classification: string;
+  risk_level: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' | string;
+  confidence: number;
+  is_attack: boolean;
+  attack_category: string;
+  summary: string;
+  detected_indicators: string[];
+  reasoning_summary: string;
+  recommended_action: 'ALLOW' | 'FLAG' | 'BLOCK' | 'REVIEW' | string;
+  detection_method: 'GEMINI_AI' | 'RULE_BASED_FALLBACK' | 'NOT_EXECUTED' | string;
+}
+
+export interface NovaSupportExecutionResult {
+  status: string;
+  policy_decision: string;
+  response: string;
+  target_tool?: string;
+  tool_traces?: ToolExecutionTrace[];
+  request_id: string;
+  execution_time_ms: number;
+}
+
+export interface NovaSupportAnalyzeResponse {
+  success: boolean;
+  analysis: NovaSupportAnalysis;
+  execution?: NovaSupportExecutionResult;
+  error?: string;
+}
+

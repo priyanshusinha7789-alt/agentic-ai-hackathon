@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, List
 from app.database import get_db
 
@@ -76,9 +76,9 @@ def issue_refund(ticket_code: str, amount: float, reason: str) -> Dict[str, Any]
         "ticket_code": ticket_code,
         "amount": amount,
         "reason": reason,
-        "transaction_id": f"TXN-REF-{int(datetime.utcnow().timestamp())}",
+        "transaction_id": f"TXN-REF-{int(datetime.now(timezone.utc).timestamp())}",
         "gateway_approval": "CONFIRMED_BY_SUPERVISOR",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
 def delete_ticket(ticket_code: str) -> Dict[str, Any]:
@@ -91,7 +91,7 @@ def delete_ticket(ticket_code: str) -> Dict[str, Any]:
     return {
         "status": "ticket_deleted",
         "ticket_code": ticket_code,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
 # Mock tool registry dispatcher

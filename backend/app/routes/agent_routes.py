@@ -1,5 +1,10 @@
 from fastapi import APIRouter, HTTPException
-from app.models.schemas import ChatRequest, ChatResponse
+from app.models.schemas import (
+    ChatRequest,
+    ChatResponse,
+    NovaSupportAnalyzeRequest,
+    NovaSupportAnalyzeResponse
+)
 from app.agent.demo_agent import DemoSupportAgent
 from app.database import get_db
 
@@ -11,6 +16,12 @@ def chat_with_agent(req: ChatRequest):
         return DemoSupportAgent.process_chat(req)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/analyze", response_model=NovaSupportAnalyzeResponse)
+def analyze_agent_input(req: NovaSupportAnalyzeRequest):
+    from app.routes.novasupport_routes import analyze_custom_input
+    return analyze_custom_input(req)
+
 
 @router.get("/state")
 def get_agent_state():

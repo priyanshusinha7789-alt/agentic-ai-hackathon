@@ -174,3 +174,69 @@ class BenchmarkMetrics(BaseModel):
     f1_score_pct: float
     avg_decision_time_ms: float
     protected_vs_unprotected_comparison: list[dict[str, Any]]
+
+# ==========================================
+# NovaSupport AI Dynamic Analysis Schemas
+# ==========================================
+class NovaSupportClassification(str, Enum):
+    BENIGN = "BENIGN"
+    PROMPT_INJECTION = "PROMPT_INJECTION"
+    INDIRECT_PROMPT_INJECTION = "INDIRECT_PROMPT_INJECTION"
+    JAILBREAK = "JAILBREAK"
+    DATA_EXFILTRATION = "DATA_EXFILTRATION"
+    TOOL_MANIPULATION = "TOOL_MANIPULATION"
+    PRIVILEGE_ESCALATION = "PRIVILEGE_ESCALATION"
+    SUSPICIOUS = "SUSPICIOUS"
+    UNKNOWN = "UNKNOWN"
+
+class NovaSupportRiskLevel(str, Enum):
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+    CRITICAL = "CRITICAL"
+
+class NovaSupportAction(str, Enum):
+    ALLOW = "ALLOW"
+    FLAG = "FLAG"
+    BLOCK = "BLOCK"
+    REVIEW = "REVIEW"
+
+class NovaSupportDetectionMethod(str, Enum):
+    GEMINI_AI = "GEMINI_AI"
+    RULE_BASED_FALLBACK = "RULE_BASED_FALLBACK"
+    NOT_EXECUTED = "NOT_EXECUTED"
+
+class NovaSupportAnalysis(BaseModel):
+    classification: str = Field(description="Allowed: BENIGN, PROMPT_INJECTION, INDIRECT_PROMPT_INJECTION, JAILBREAK, DATA_EXFILTRATION, TOOL_MANIPULATION, PRIVILEGE_ESCALATION, SUSPICIOUS, UNKNOWN")
+    risk_level: str = Field(description="Allowed: LOW, MEDIUM, HIGH, CRITICAL")
+    confidence: float = Field(ge=0.0, le=1.0, description="Confidence score between 0.0 and 1.0")
+    is_attack: bool = Field(description="True if input represents an attack or policy violation, False if benign")
+    attack_category: str = Field(description="Category identifier, e.g. DIRECT_PROMPT_INJECTION, INDIRECT_PROMPT_INJECTION, BENIGN_REQUEST, etc.")
+    summary: str = Field(description="One-line summary of the finding")
+    detected_indicators: list[str] = Field(default_factory=list, description="List of detected attack indicators or suspicious features")
+    reasoning_summary: str = Field(description="Concise analytical explanation of the security verdict")
+    recommended_action: str = Field(description="Allowed: ALLOW, FLAG, BLOCK, REVIEW")
+    detection_method: str = Field(default="GEMINI_AI", description="Allowed: GEMINI_AI, RULE_BASED_FALLBACK, NOT_EXECUTED")
+
+class NovaSupportAnalyzeRequest(BaseModel):
+    text: str = Field(..., max_length=12000, description="User-provided custom input or attack scenario payload")
+    session_id: Optional[str] = "novasupport-session"
+    user_id: Optional[str] = "cust_001"
+    user_role: Optional[UserRole] = UserRole.TIER1_AGENT
+    protected_mode: bool = True
+
+class NovaSupportExecutionResult(BaseModel):
+    status: str # "BLOCKED", "ALLOWED", "CONFIRMATION_REQUIRED", "NOT_EXECUTED"
+    policy_decision: str # "BLOCKED", "ALLOWED", "SIMULATED_EXPLOIT"
+    response: str
+    target_tool: Optional[str] = None
+    tool_traces: list[ToolExecutionTrace] = []
+    request_id: str
+    execution_time_ms: float
+
+class NovaSupportAnalyzeResponse(BaseModel):
+    success: bool
+    analysis: NovaSupportAnalysis
+    execution: Optional[NovaSupportExecutionResult] = None
+    error: Optional[str] = None
+

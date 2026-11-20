@@ -14,6 +14,7 @@ from app.routes.threat_routes import router as threat_router
 from app.routes.audit_routes import router as audit_router
 from app.routes.dashboard_routes import router as dashboard_router
 from app.routes.benchmark_routes import router as benchmark_router
+from app.routes.novasupport_routes import router as novasupport_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -46,6 +47,7 @@ app.include_router(threat_router, prefix=settings.API_V1_STR)
 app.include_router(audit_router, prefix=settings.API_V1_STR)
 app.include_router(dashboard_router, prefix=settings.API_V1_STR)
 app.include_router(benchmark_router, prefix=settings.API_V1_STR)
+app.include_router(novasupport_router, prefix=settings.API_V1_STR)
 
 app.include_router(agent_router)
 app.include_router(simulation_router)
@@ -55,6 +57,7 @@ app.include_router(threat_router)
 app.include_router(audit_router)
 app.include_router(dashboard_router)
 app.include_router(benchmark_router)
+app.include_router(novasupport_router)
 
 # Resolve public static directory for serving frontend bundle
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

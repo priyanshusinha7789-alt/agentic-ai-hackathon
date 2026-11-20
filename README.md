@@ -13,6 +13,45 @@
 
 ---
 
+## 🤖 NovaSupport AI — Dynamic Gemini API Security Integration
+
+NovaSupport AI is AgentShield's flagship customer support AI assistant, upgraded with **Google Gemini API** dynamic semantic analysis.
+
+### Dynamic Custom Input Analysis Pipeline
+```
+USER INPUT (Arbitrary Text or Predefined Attack)
+  ↓
+INPUT VALIDATION (Length boundary <= 12,000 chars, whitespace check)
+  ↓
+DETERMINISTIC SECURITY HEURISTICS (Honeypot, Regexes, SQL/Shell)
+  ↓
+GEMINI AI ANALYSIS (google-genai SDK, temperature=0.1, structured Pydantic schema)
+  ↓
+STRUCTURED RESULT VALIDATION (NovaSupportAnalysis: classification, risk, confidence, action)
+  ↓
+FINAL SECURITY CLASSIFICATION & POLICY ENFORCEMENT (Gateway blocks in Protected Mode)
+  ↓
+RESULT DISPLAY & TELEMETRY (Rich indicators, breakdown, status badges)
+  ↓
+FORENSIC AUDIT LOGGING (SQLite immutable ledger & threat incidents)
+```
+
+### Supported Threat Taxonomy
+- **Direct Prompt Injection**: Instruction overrides, persona hijacks, reset attempts.
+- **Indirect Prompt Injection**: Poisoned document context, HTML comments (`<!-- ... -->`).
+- **Jailbreak**: Attempts to enable unrestricted personas (DAN, developer mode).
+- **System Prompt Extraction**: Demands to disclose hidden system prompts.
+- **Sensitive Data Exfiltration & IDOR**: Unauthorized customer data harvesting, unmasked credit cards/CVV, cross-tenant records.
+- **Tool Manipulation**: Forcing execution of quarantined honeypots (`dump_user_credentials`, `execute_raw_command`).
+- **Privilege Escalation**: Bypassing supervisor authorization or financial thresholds.
+- **Benign Customer Queries & Educational Inquiries**: Accurately differentiated without false positives.
+
+### Honest Fallback Attribution
+- When `GEMINI_API_KEY` is present: Analyzed with **Gemini AI** (`detection_method: "GEMINI_AI"`).
+- When `GEMINI_API_KEY` is missing or on rate limits/timeouts: Gracefully handled by deterministic security engine (`detection_method: "RULE_BASED_FALLBACK"`). The system **never claims** rule-based results are from Gemini AI.
+
+---
+
 ## 🎯 The Core Differentiator
 
 > **"Security is enforced at the backend, not merely suggested through an AI prompt."**
@@ -92,6 +131,10 @@ source venv/bin/activate
 # Install dependencies
 pip install -r requirements.txt
 
+# Configure Environment Variables (Optional Gemini API Key)
+cp .env.example .env
+# Edit .env to set GEMINI_API_KEY="your_api_key_here" and GEMINI_MODEL="gemini-2.5-flash"
+
 # Start FastAPI server
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
@@ -114,11 +157,18 @@ Open your browser at: `http://127.0.0.1:5173/`
 
 ## 🧪 Testing Guide
 
-### Running Backend Unit & Security Tests
-AgentShield includes an automated test suite verifying prompt injection detection, RBAC clearance enforcement, PII scrubbing, and direct bypass prevention:
+### Running Complete Backend & NovaSupport Test Suite (32 Tests)
+AgentShield includes an automated test suite verifying NovaSupport Gemini analysis, prompt injection detection, RBAC clearance enforcement, PII scrubbing, and direct bypass prevention:
 
 ```bash
 cd backend
+pytest -v
+```
+All 32 security tests execute with 100% pass rate:
+- **`test_gateway.py`**: RBAC permissions, honeypots, supervisor tokens, PII scrubbing.
+- **`test_injection.py`**: Direct & indirect prompt injection signatures, DAN jailbreaks.
+- **`test_novasupport_gemini.py`**: 23 dedicated tests covering benign support queries, prompt injection, indirect poisoning, jailbreaks, prompt extraction, sensitive data exfiltration, tool manipulation, privilege escalation, payload limits, empty inputs, malformed Gemini JSON recovery, timeout and 429 rate limit fallbacks, missing key attribution, and unified evaluation across all 6 predefined scenarios.
+
 .\venv\Scripts\python.exe -m pytest
 ```
 *Expected Result: 9 passed, 0 failed.*

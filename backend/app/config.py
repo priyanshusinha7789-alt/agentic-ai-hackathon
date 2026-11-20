@@ -12,8 +12,9 @@ class Settings(BaseModel):
     DEBUG: bool = os.getenv("DEBUG", "True").lower() in ("true", "1")
     CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000"]
     
-    # Optional LLM integration (fallback to deterministic engine if not set)
+    # Gemini API configuration for NovaSupport AI security analysis
     GEMINI_API_KEY: str | None = os.getenv("GEMINI_API_KEY", None)
-    USE_MOCK_LLM: bool = os.getenv("USE_MOCK_LLM", "True").lower() in ("true", "1")
+    GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    USE_MOCK_LLM: bool = os.getenv("USE_MOCK_LLM", "False").lower() in ("true", "1")
 
 settings = Settings()
